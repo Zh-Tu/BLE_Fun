@@ -16,7 +16,7 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sample.ble.sensortag"
-    android:versionCode="8"
+    android:versionCode="16"
     android:versionName="2.1">
     <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18"/>
 
@@ -30,6 +30,7 @@ limitations under the License.
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"

@@ -2,12 +2,20 @@ package sample.ble.sensortag;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import sample.ble.sensortag.adapters.TiServicesAdapter;
@@ -29,17 +37,29 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
                                                TiServicesAdapter.OnServiceItemClickListener {
     @SuppressWarnings("UnusedDeclaration")
     private final static String TAG = DeviceServicesActivity.class.getSimpleName();
+    public static String EXTRAS_DEVICE_rssi;
 
     private TextView dataField;
+    TextView degreeField;
     private ExpandableListView gattServicesList;
     private TiServicesAdapter gattServiceAdapter;
 
     private TiSensor<?> activeSensor;
 
+    SensorManager mSensorManager;
+    Sensor mOrientationSensor;
+    ImageView image;
+    float currentDegree = 0f;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.device_services_activity);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+
+        mSensorManager.registerListener(orientationListener, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
 
         gattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
@@ -49,10 +69,48 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
 
         dataField = (TextView) findViewById(R.id.data_value);
 
+        dataField.setText(EXTRAS_DEVICE_rssi);
+
         getActionBar().setTitle(getDeviceName());
         getActionBar().setSubtitle(getDeviceAddress());
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
+    SensorEventListener orientationListener = new SensorEventListener() {
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int acc) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+
+            float degree = Math.round(event.values[0]);
+
+            /*
+            image = (ImageView) findViewById(R.id.imageView2);
+
+            // create a rotation animation (reverse turn degree degrees)
+            RotateAnimation ra = new RotateAnimation(
+                    currentDegree,
+                    -degree,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+
+            // how long the animation will take place
+            ra.setDuration(210);
+
+            // set the animation after the end of the reservation status
+            ra.setFillAfter(true);
+
+            // Start the animation
+            image.startAnimation(ra);
+            currentDegree = -degree;
+            */
+
+        }
+
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -67,6 +125,8 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         }
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -97,7 +157,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
 
     @Override
     public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
-        dataField.setText(text);
+        //dataField.setText(text);
     }
 
     @Override
